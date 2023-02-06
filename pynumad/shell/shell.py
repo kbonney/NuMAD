@@ -5,14 +5,24 @@ from pynumad.utils.interpolation import interpolator_wrap
 from pynumad.shell.shellClasses import shellRegion, elementSet, NuMesh3D, spatialGridList2D, spatialGridList3D
 
 
-def shellMeshGeneral(blade, forSolid, includeAdhesive): 
-    ## This method generates a finite element shell mesh for the blade, based on what is
-    ## stored in blade.geometry, blade.keypoints, and blade.profiles.  Element sets are
-    ## returned corresponding to blade.stacks and blade.swstacks
+def shellMeshGeneral(blade, forSolid, includeAdhesive):
+    """
+    This method generates a finite element shell mesh for the blade, based on what is
+    stored in blade.geometry, blade.keypoints, and blade.profiles.  Element sets are
+    returned corresponding to blade.stacks and blade.swstacks
+
+    Parameters
+    -----------
+
+    Returns
+    -------
+    """
+
     geomSz = blade.geometry.shape
     lenGeom = geomSz[0]
     numXsec = geomSz[2]
     XSCurvePts = np.array([],dtype=int)
+
     ## Determine the key curve points along the OML at each cross section
     for i in range(numXsec):
         keyPts = np.array([0])
@@ -24,11 +34,12 @@ def shellMeshGeneral(blade, forSolid, includeAdhesive):
             if (mag < minDist):
                 minDist = mag
                 lePt = j
-        for j in range(0,5):
+
+        for j in range(5):
             kpCrd = blade.keypoints[j,:,i]
             minDist = blade.ichord[i]
             pti = 1
-            for k in range(0,lePt):
+            for k in range(lePt):
                 ptCrd = blade.geometry[k,:,i]
                 vec = ptCrd - kpCrd
                 mag = np.linalg.norm(vec)
@@ -36,6 +47,7 @@ def shellMeshGeneral(blade, forSolid, includeAdhesive):
                     minDist = mag
                     pti = k
             keyPts = np.concatenate((keyPts,[pti]))
+
         keyPts = np.concatenate((keyPts,[lePt]))
         for j in range(5,10):
             kpCrd = blade.keypoints[j,:,i]
@@ -49,16 +61,15 @@ def shellMeshGeneral(blade, forSolid, includeAdhesive):
                     minDist = mag
                     pti = k
             keyPts = np.concatenate((keyPts,[pti]))
+
         keyPts = np.concatenate((keyPts,[lenGeom-1]))
         allPts = np.array([keyPts[0]])
         for j in range(0,len(keyPts) - 1):
             secPts = np.linspace(keyPts[j],keyPts[j+1],4)
             secPts = np.round(secPts).astype(int)
             allPts = np.concatenate((allPts,secPts[1:4]))
-        try:
-            XSCurvePts = np.vstack((XSCurvePts,allPts))
-        except ValueError:
-            XSCurvePts = allPts
+
+        XSCurvePts = np.vstack((XSCurvePts,allPts)) if XSCurvePts.size else allPts
     rws,cls = XSCurvePts.shape
     ## Create longitudinal splines down the blade through each of the key X-section points
 
@@ -191,12 +202,12 @@ def shellMeshGeneral(blade, forSolid, includeAdhesive):
     ## Shift the appropriate splines if the mesh is for a solid model seed
     if (forSolid == 1):
         caseIndex = np.array([[10,28,4],[13,25,4],[25,13,9],[28,10,9]])
-        #                     5,33,2; ...
-#                     6,32,2; ...
-#                     7,31,2; ...
-#                     33,5,11; ...
-#                     32,6,11; ...
-#                     31,7,11];
+        # 5,33,2; ...
+        # 6,32,2; ...
+        # 7,31,2; ...
+        # 33,5,11; ...
+        # 32,6,11; ...
+        # 31,7,11];
         for i in np.arange(1,caseIndex.shape[1-1]+1).reshape(-1):
             spl = caseIndex(i,1)
             tgtSp = caseIndex(i,2)
@@ -344,8 +355,8 @@ def shellMeshGeneral(blade, forSolid, includeAdhesive):
             web2Sets = np.concatenate([web2Sets,[newSet]])
         stPt = stPt + 3
     
-    #             plotShellMesh(nodes,elements);
-#             keyboard
+    # plotShellMesh(nodes,elements);
+    # keyboard
     shearWebElSets = [web1Sets, web2Sets]
     ## Eliminate duplicate nodes from the global list and update element connectivity
     minX = np.amin(nodes[:,0]) - blade.mesh
@@ -473,7 +484,7 @@ def shellMeshGeneral(blade, forSolid, includeAdhesive):
     return nodes,elements,outerShellElSets,shearWebElSets,adhesNds,adhesEls
     
     
-def generateShellModel(self,blade, feaCode = None,includeAdhesive = None,varargin = None): 
+def generateShellModel(blade, feaCode, includeAdhesive, varargin): 
     # This method generates a shell FEA model in one of the supported FEA codes; w/ or w/o adhesieve
     
     if str(feaCode.lower()) == str('ansys'):
@@ -523,7 +534,7 @@ def generateShellModel(self,blade, feaCode = None,includeAdhesive = None,varargi
     return meshData
     
     
-def getSolidMesh(self, blade, layerNumEls = None): 
+def getSolidMesh(blade, layerNumEls): 
     ## Edit stacks to be usable for 3D solid mesh
     blade.editStacksForSolidMesh()
     ## Create shell mesh as seed

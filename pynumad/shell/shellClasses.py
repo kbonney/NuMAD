@@ -32,7 +32,20 @@ class NuMesh2D():
         return
         
         
-    def adoptAnyNode(self, currentEdge, ndPt, srchRad): 
+    def adoptAnyNode(self, currentEdge, ndPt, srchRad):
+        """Object data modified: self.triElements, self.triElGL, self.edges
+
+        Parameters
+        ----------
+        currentEdge
+        ndPt
+        srchRad
+
+        Returns
+        -------
+        nodeFound
+        edgesAdded
+        """
         nodeFound = 0
         edgesAdded = 0
         n1 = self.edges[currentEdge,0]
@@ -64,10 +77,22 @@ class NuMesh2D():
                         self.edges[currentEdge,3] = elNum
                         nodeFound = 1
             k = k+1
-        return nodeFound,edgesAdded,self
+        return nodeFound,edgesAdded
         
         
-    def adoptConnectedNode(self, currentEdge, ndPt, srchRad): 
+    def adoptConnectedNode(self, currentEdge, ndPt, srchRad):
+        """Object data modified: self.triElements, self.triElGL, self.edges,
+
+        Parameters
+        ----------
+        elType
+        equalizeSpacing
+
+        Returns
+        -------
+        nodeFound
+        edgesAdded
+        """
         nodeFound = 0
         edgesAdded = 0
         n1 = self.edges[currentEdge,0]
@@ -106,10 +131,21 @@ class NuMesh2D():
                             self.edges[currentEdge,3] = elNum
                             nodeFound = 1
             k = k+1
-        return nodeFound,edgesAdded,self
+        return nodeFound,edgesAdded
         
         
-    def checkViolations(self, ndLab, ndCrd, marginFact): 
+    def checkViolations(self, ndLab, ndCrd, marginFact):
+        """Object data modified: none
+        Parameters
+        ----------
+        ndLab
+        ndCrd
+        marginFact
+
+        Returns
+        -------
+        violation : bool
+        """ 
         violation = 0
         elCrd = []
         for i in range(len(ndLab)):
@@ -144,7 +180,19 @@ class NuMesh2D():
         return violation
         
         
-    def completeEdges(self, n1, n2, n3, elNum): 
+    def completeEdges(self, n1, n2, n3, elNum):
+        """Object data modified: self.edges, self.edgeGL, self.maxEdgeLen
+        Parameters
+        ----------
+        n1
+        n2
+        n3
+        elNum
+
+        Returns
+        -------
+        numAdded
+        """ 
         numAdded = 0
         midPt = 0.333333 * (self.nodes[n1,:] + self.nodes[n2,:] + self.nodes[n3,:])
         nearEdges = self.edgeGL.findInRadius(midPt,1.1 * self.maxEdgeLen)
@@ -193,10 +241,20 @@ class NuMesh2D():
         else:
             self.edges[e3Found,3] = elNum
         
-        return numAdded,self
+        return numAdded
         
         
-    def createNode(self, currentEdge, ndPt): 
+    def createNode(self, currentEdge, ndPt):
+        """Object data modified: self.nodes, self.nodeGL, self.triElements,
+        self.triGL
+        Parameters
+        ----------
+
+        Returns
+        -------
+        nodeCreated
+        edgesAdded
+        """ 
         nodeCreated = 0
         edgesAdded = 0
         n1 = self.edges[currentEdge,0]
@@ -216,10 +274,21 @@ class NuMesh2D():
             edgesAdded = edgesAdded + numAdded
             nodeCreated = 1
         
-        return nodeCreated,edgesAdded,self
+        return nodeCreated,edgesAdded
         
         
-    def createPlanarMesh(self = None,elType = None,equalizeSpacing = None): 
+    def createPlanarMesh(self, elType, equalizeSpacing):
+        """Object data modified: none
+        Parameters
+        ----------
+        elType
+        equalizeSpacing
+
+        Returns
+        -------
+        nodes
+        elements
+        """ 
         if ('quad' in elType):
             self = self.skewNodes()
         
@@ -250,10 +319,19 @@ class NuMesh2D():
         
         #             plot2DMesh(nodes,elements);
     #             keyboard;
-        return nodes,elements,self
+        return nodes,elements
         
         
     def createSweptMesh(self, sweepMethod, direction, sweepDistance, sweepElements, followNormal, destNodes): 
+        """Object data modified: self.quadElements, self.nodes, self.quadElements
+        Parameters
+        ----------
+
+        Returns
+        -------
+        nodes
+        elements
+        """ 
         numNds = self.nodes.shape[0]
         numEdges = self.edges.shape[0]
         self.quadElements = np.array([])
@@ -288,7 +366,17 @@ class NuMesh2D():
         return nodes,elements
         
         
-    def createUnstructTriMesh(self = None): 
+    def createUnstructTriMesh(self):
+        """Object data modified: self.triElements, self.triElGL,
+        self.edges, self.edgeGL, self.maxEdgeLen
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        self
+        """ 
         self.prepareForMesh()
         numEdges = self.edges.shape[0]
         for i in range(numEdges):
@@ -450,7 +538,17 @@ class NuMesh2D():
         return self
         
         
-    def distributeNodes(self, boundaryNodes): 
+    def distributeNodes(self, boundaryNodes):
+        """Object data modified: self.nodes
+
+        Parameters
+        ----------
+        boundaryNodes
+
+        Returns
+        -------
+        self
+        """ 
         numNds = self.nodes.shape[0]
         dim = 2 * numNds
         Dmat = np.zeros((dim))
@@ -515,7 +613,18 @@ class NuMesh2D():
         return self
         
         
-    def elementsOverlap(self = None,els = None,ndCrd = None,marginFact = None): 
+    def elementsOverlap(self, els, ndCrd, marginFact):
+        """Object data modified: none
+        Parameters
+        ----------
+        els
+        ndCrd
+        marginFact
+
+        Returns
+        -------
+        overlap
+        """ 
         Xel1 = np.array([[ndCrd[els[0,0],:]],[ndCrd[els[0,1],:]],[ndCrd[els[0,2],:]]])
         Xel2 = np.array([[ndCrd[els[1,0],:]],[ndCrd[els[1,1],:]],[ndCrd[els[1,2],:]]])
         cent = 0.3333333 * (Xel1[0,:] + Xel1[1,:] + Xel1[2,:])
@@ -544,8 +653,19 @@ class NuMesh2D():
         return overlap
         
         
-    def findElement(self, nds): 
-        nearEls = self.triElGL.findInRadius(self.nodes[nds[0],:],1.1 * self.maxEdgeLen)
+    def findElement(self, nds):
+        """Object data modified: none
+        Parameters
+        ----------
+        nds
+
+        Returns
+        -------
+        elNum
+        """ 
+        nearEls = self.triElGL.findInRadius(
+            self.nodes[nds[0],:],
+            1.1 * self.maxEdgeLen)
         sortedNds = np.sort(nds)
         elNum = 0
         for j in range(len(nearEls)):
@@ -557,7 +677,15 @@ class NuMesh2D():
         return elNum
         
         
-    def getBoundaryData(self = None): 
+    def getBoundaryData(self):
+        """Object data modified: none
+        Parameters
+        ----------
+
+        Returns
+        -------
+        edgeDir
+        """  
         numEdges = self.edges.shape[0]
         avgSpacing = 0
         edgeDir = np.array([])
@@ -575,7 +703,20 @@ class NuMesh2D():
         return edgeDir
         
         
-    def getBoundaryEdgeNormals(self, Xmin, Xmax, Ymin, Ymax, spacing): 
+    def getBoundaryEdgeNormals(self, Xmin, Xmax, Ymin, Ymax, spacing):
+        """Object data modified: self.edges
+        Parameters
+        ----------
+        Xmin
+        Xmax
+        Ymin
+        Ymax
+        spacing
+
+        Returns
+        -------
+        self
+        """ 
         for i in range(self.edges.shape[0]):
             n1 = self.edges[i,0].astype(int)
             n2 = self.edges[i,1].astype(int)
@@ -659,7 +800,19 @@ class NuMesh2D():
         return self
         
         
-    def mergeElsBetweenAngles(self = None,elMerged = None,el2El = None,minAngle = None,maxAngle = None): 
+    def mergeElsBetweenAngles(self, elMerged, el2El, minAngle, maxAngle):
+        """Object data modified: self.quadElements
+        Parameters
+        ----------
+        elMerged
+        el2El
+        minAngle
+        maxAngle
+
+        Returns
+        -------
+        newElMerged
+        """ 
         for i in range(self.triElements.shape[0]):
             if (elMerged[i] == 0):
                 for p in range(3):
@@ -696,10 +849,23 @@ class NuMesh2D():
                                     elMerged[j] = 1
         
         newElMerged = elMerged
-        return newElMerged,self
+        return newElMerged
         
         
-    def mergeNestedQuadEls(self = None,elMerged = None,el2El = None,nodeElim = None): 
+    def mergeNestedQuadEls(self, elMerged, el2El, nodeElim):
+        """Object data modified: self.quadElements
+        
+        Parameters
+        ----------
+        elMerged
+        el2El
+        nodeElim
+
+        Returns
+        -------
+        newElMerged
+        newNodeElim
+        """ 
         numEls = self.triElements.shape[0]
         for i in range(numEls):
             if (elMerged[i] == 0):
@@ -764,10 +930,23 @@ class NuMesh2D():
         
         newElMerged = elMerged
         newNodeElim = nodeElim
-        return newElMerged,newNodeElim,self
+        return newElMerged,newNodeElim
         
         
-    def mergeNestedTriEls(self = None,elMerged = None,el2El = None,nodeElim = None): 
+    def mergeNestedTriEls(self, elMerged, el2El, nodeElim):
+        """Object data modified: self.triElements
+        Parameters
+        ----------
+        elMerged
+        el2El
+        nodeElim
+
+        Returns
+        -------
+        newElMerged
+        newNodeElim
+        newEl2El
+        """ 
         numEls = self.triElements.shape[0]
         for i in range(numEls):
             if (elMerged[i] == 0):
@@ -815,10 +994,21 @@ class NuMesh2D():
         newElMerged = elMerged
         newNodeElim = nodeElim
         newEl2El = el2El
-        return newElMerged,newNodeElim,newEl2El,self
+        return newElMerged,newNodeElim,newEl2El
         
         
-    def mergeTriEls(self = None,elType = None): 
+    def mergeTriEls(self, elType): 
+        """Object data modified: self.quadElements, self.nodes,
+        self.triElements
+
+        Parameters
+        ----------
+        elType
+
+        Returns
+        -------
+        self
+        """ 
         elMerged = np.zeros((self.triElements.shape[0],1))
         nodeElim = np.zeros((self.nodes.shape[0],1))
         el2El = np.zeros((self.triElements.shape[0],3))
@@ -910,7 +1100,16 @@ class NuMesh2D():
         return self
         
         
-    def prepareForMesh(self): 
+    def prepareForMesh(self):
+        """Object data modified: self.maxEdgeLen, self.avgProjLen, self.maxElSize,
+        self.MinElSize, self.nodeGL, self.edgeGL, self.triElGL
+        Parameters
+        ----------
+
+        Returns
+        -------
+        self
+        """ 
         numNds = self.nodes.shape[0]
         numEdges = self.edges.shape[0]
         self.triElements = np.array([])
@@ -962,7 +1161,19 @@ class NuMesh2D():
         return self
         
         
-    def ptInEl(self = None,pt = None,elConn = None,nodes = None,marginFactor = None): 
+    def ptInEl(self, pt, elConn, nodes, marginFactor): 
+        """Object data modified: none
+        Parameters
+        ----------
+        pt
+        elConn
+        nodes
+        marginFactor
+
+        Returns
+        -------
+        inEl
+        """ 
         inEl = 1
         n1 = elConn[0]
         n2 = elConn[1]
@@ -1002,13 +1213,29 @@ class NuMesh2D():
         return inEl
         
         
-    def skewNodes(self): 
+    def skewNodes(self):
+        """Object data modified: self.nodes
+        Parameters
+        ----------
+
+        Returns
+        -------
+        self
+        """ 
         skewMat = np.array([[1,np.tan(np.pi / 12)],[np.tan(np.pi / 12),1]])
         self.nodes = self.nodes @ skewMat
         return self
         
         
     def sortIncompleteEdges(self): 
+        """Object data modified: self.edges
+        Parameters
+        ----------
+
+        Returns
+        -------
+        self
+        """ 
         completeEdges = np.array([])
         completeLabels = np.array([])
         incompleteEdges = np.array([])
@@ -1056,7 +1283,17 @@ class NuMesh2D():
         return self
         
         
-    def sortNodesByAngle(self = None,labels = None): 
+    def sortNodesByAngle(self, labels):
+        """Object data modified: none
+        Parameters
+        ----------
+        labels
+
+        Returns
+        -------
+        sortedNodes
+        angles
+        """ 
         l1 = labels[0]
         l2 = labels[1]
         l3 = labels[2]
@@ -1246,11 +1483,13 @@ class NuMesh3D():
         
 
 class shellRegion: 
-    #UNTITLED Summary of this class goes here
-    #   Detailed explanation goes here
-    # self.type = ''
-    # self.keyPts = []
-    # self.edgeEls = []
+    """
+    Attributes
+    -----------
+    type : str
+    keyPts : list
+    edgeEls : list
+    """
     def __init__(self, regType, keyPoints, numEdgeEls): 
 
         self.type = regType
@@ -1258,7 +1497,18 @@ class shellRegion:
         self.edgeEls = numEdgeEls
         
     
-    def createShellMesh(self, elType, method: str): 
+    def createShellMesh(self, elType, method):
+        """Object data modified: none
+        Parameters
+        ----------
+        elType
+        method : str
+        
+        Returns
+        -------
+        nodes
+        elements
+        """
         if 'structured' in method:
             if ('quad' in self.type) or ('cyl' in self.type):
                 xNodes = np.amax(self.edgeEls[[0,2]]) + 1
@@ -1268,6 +1518,7 @@ class shellRegion:
                 mesh = NuMesh2D(boundaryNodes,boundaryEdges)
                 nodes,elements = mesh.createSweptMesh('in_direction',np.array([0,1]),2,(yNodes - 1),0,[])
                 ndElim = np.zeros((len(nodes),1)).astype(int)
+
                 if (self.edgeEls[0] < self.edgeEls[2]):
                     nds2Elim = (self.edgeEls[2] - self.edgeEls[0])
                     rowstep = np.ceil((xNodes - nds2Elim) / (nds2Elim + 1)).astype(int) + 1
@@ -1281,6 +1532,7 @@ class shellRegion:
                         if (ndElim[nd] == 0):
                             nodes[nd,0] = xPrev + xInc
                             xPrev = xPrev + xInc
+
                 elif (self.edgeEls[2] < self.edgeEls[0]):
                     nds2Elim = (self.edgeEls[0] - self.edgeEls[2])
                     rowstep = np.ceil((xNodes - nds2Elim) / (nds2Elim + 1)).astype(int) + 1
@@ -1294,6 +1546,7 @@ class shellRegion:
                         if (ndElim[nd] == 0):
                             nodes[nd,0] = xPrev + xInc
                             xPrev = xPrev + xInc
+
                 if (self.edgeEls[1] < self.edgeEls[3]):
                     nds2Elim = (self.edgeEls[3] - self.edgeEls[1])[0]
                     rowstep = np.ceil((yNodes - nds2Elim) / (nds2Elim + 1)).astype(int) + 1
@@ -1307,6 +1560,7 @@ class shellRegion:
                         if (ndElim[nd] == 0):
                             nodes[nd,1] = yPrev + yInc
                             yPrev = yPrev + yInc
+
                 elif (self.edgeEls[3] < self.edgeEls[1]):
                     nds2Elim = (self.edgeEls[1] - self.edgeEls[3])[0]
                     rowstep = np.ceil((yNodes - nds2Elim) / (nds2Elim + 1)).astype(int) + 1
@@ -1320,6 +1574,7 @@ class shellRegion:
                         if (ndElim[nd] == 0):
                             nodes[nd,1] = yPrev + yInc
                             yPrev = yPrev + yInc
+
                 if (np.sum(ndElim) > 0.1):
                     newNds = np.ndarray([])
                     newLabel = np.zeros((len(nodes)))
@@ -1353,6 +1608,7 @@ class shellRegion:
                             newEl = np.hstack([newEl,np.zeros((4 - ln))])
                         elements[i,:] = newEl.reshape(-1)
                 newNodes = np.array([])
+
                 for i in range(len(nodes)):
                     XYZ = self.XYZCoord(nodes[i,:])
                     try:
@@ -1360,8 +1616,10 @@ class shellRegion:
                     except ValueError:
                         newNodes = XYZ
                 nodes = newNodes
+
             else:
                 raise Exception('Only quadrilateral or cylinder shell regions can use the structured meshing option')
+
         else:
             boundaryNodes,edges = self.initialBoundary()
             # plot2DMesh(boundaryNodes,[])
@@ -1376,7 +1634,16 @@ class shellRegion:
         return nodes,elements
         
         
-    def initialBoundary(self): 
+    def initialBoundary(self):
+        """ Object data modified: none
+        Parameters
+        ----------
+
+        Returns
+        -------
+        nodes
+        edges
+        """
         if 'quad' in self.type:
             nodes = np.array([])
             edges = np.array([])
@@ -1450,6 +1717,15 @@ class shellRegion:
         
         
     def XYZCoord(self, eta): 
+        """
+        Parameters
+        ----------
+        eta
+
+        Returns
+        -------
+        XYZ
+        """
         if 'quad4' == self.type:
             Nvec = np.zeros((1,4))
             Nvec[0] = 0.25 * (eta[0] - 1) * (eta[1] - 1)
@@ -1566,17 +1842,36 @@ class shellRegion:
 
 
 class elementSet:
-    #UNTITLED Summary of this class goes here
-    #   Detailed explanation goes here
-    def __init__(self, setName=None, setPlyGroups=None, setElList=None):
+    """
+    Attributes
+    ----------
+    name : str
+    plygroups : list[Plygroup]??
+    elementsList : list
+    """
+    def __init__(self, setName, setPlyGroups, setElList):
         self.name = setName
         self.plygroups = setPlyGroups
         self.elementList = setElList
 
 
 class spatialGridList2D():
-    #UNTITLED2 Summary of this class goes here
-    #   Detailed explanation goes here
+    """
+
+    Attributes
+    ----------
+    firstEnt : array
+    label : array
+    nextEnt : array
+    xMin : int
+    yMin : int
+    xGSz : int
+        x grid size
+    yGSz : int
+        y grid size
+    xRows : int
+    yRows : int
+    """
 
     def __init__(
             self,
@@ -1612,8 +1907,15 @@ class spatialGridList2D():
         
         
     def addEntry(self, val, coord): 
-        #METHOD1 Summary of this method goes here
-    #   Detailed explanation goes here
+        """
+        Object variables modified: self.label, self.nextEnt, self.firstEnt
+
+        Parameters
+        ----------
+        val
+        coord
+        
+        """
         xRow = np.ceil((coord[0] - self.xMin) / self.xGSz).astype(int) - 1
         yRow = np.ceil((coord[1] - self.yMin) / self.xGSz).astype(int) - 1
         if (self.firstEnt[xRow,yRow] == -1):
@@ -1633,16 +1935,28 @@ class spatialGridList2D():
                 else:
                     i = self.nextEnt[i]
     
-        
         return self
         
         
     def findInRadius(self, point, radius): 
-        labelList = self.findInXYMargin(point,radius,radius)
+        """
+        Parameters
+        ----------
+        point
+        radius
+        """
+        labelList = self.findInXYMargin(point, radius, radius)
         return labelList
         
         
     def findInXYMargin(self, point, Xmargin, Ymargin): 
+        """Object variables modified: none
+        Parameters
+        ----------
+        point
+        Xmargin
+        Ymargin
+        """
         if (Xmargin == -1):
             iMax = self.xRows
             iMin = 1
@@ -1683,7 +1997,12 @@ class spatialGridList2D():
         return labelList
         
         
-    def reOrderLabels(self, labelOrder): 
+    def reOrderLabels(self, labelOrder):
+        """Object variables modified: self.label
+        Parameters
+        ----------
+        labelOrder
+        """
         currentLabel = np.zeros((np.amax(labelOrder)+1))
         for i in range(len(labelOrder)):
             currentLabel[labelOrder[i]] = i
@@ -1697,8 +2016,22 @@ class spatialGridList2D():
         
 
 class spatialGridList3D():
-    #UNTITLED2 Summary of this class goes here
-    #   Detailed explanation goes here
+    """
+    Parameters
+    ----------
+    firstEnt
+    label
+    nextEnt
+    xMin
+    yMin
+    zMin
+    xGSz
+    yGSz
+    zGSz
+    xRow
+    yRow
+    zRow
+    """
     
 
         
@@ -1731,9 +2064,9 @@ class spatialGridList3D():
         return
         
         
-    def addEntry(self,val,coord): 
-        #METHOD1 Summary of this method goes here
-    #   Detailed explanation goes here
+    def addEntry(self, val, coord): 
+        """
+        """
         xRow = np.ceil((coord[0] - self.xMin) / self.xGSz).astype(int) - 1
         yRow = np.ceil((coord[1] - self.yMin) / self.yGSz).astype(int) - 1
         zRow = np.ceil((coord[2] - self.zMin) / self.zGSz).astype(int) - 1
@@ -1764,6 +2097,19 @@ class spatialGridList3D():
         
         
     def findInXYZMargin(self,point,Xmargin,Ymargin,Zmargin): 
+        """ Object data modified: none
+
+        Parameters
+        ----------
+        point
+        Xmargin
+        Ymargin
+        Zmargin
+
+        Returns
+        -------
+        labelList
+        """
         if (Xmargin == - 1):
             iMax = self.xRows
             iMin = 1
@@ -1817,6 +2163,20 @@ class spatialGridList3D():
         
         
     def reOrderLabels(self,labelOrder): 
+        """Object data modified: self.label
+
+        Parameters
+        ----------
+        labelOrder
+
+        Returns
+        -------
+        self
+        """
+
+        # I think something like this would work and is a little more concise:
+        # currentLabel = [self.label[i] for i in labelOrder]
+        # self.label = currentLabel
         currentLabel = np.zeros((np.amax(labelOrder),1))
         for i in range(len(labelOrder)):
             currentLabel[labelOrder[i]] = i
@@ -1828,3 +2188,7 @@ class spatialGridList3D():
         
         return self
         
+class edges():
+    def __init__(self, coords):
+        self.coords = coords
+        # self.otherstuff = other stuff
