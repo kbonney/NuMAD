@@ -95,16 +95,16 @@ class NuMesh2D():
         """
         nodeFound = 0
         edgesAdded = 0
-        n1 = self.edges[currentEdge,0]
-        n2 = self.edges[currentEdge,1]
+        n1 = self.edges[currentEdge,0].astype(int)
+        n2 = self.edges[currentEdge,1].astype(int)
         edgeMpt = 0.5 * (self.nodes[n1,:] + self.nodes[n2,:])
         nearEdges = self.edgeGL.findInRadius(edgeMpt,1.1 * self.maxEdgeLen)
         k = 1
         while (nodeFound == 0 and k <= len(nearEdges)):
             j = nearEdges[k]
             if (currentEdge != j):
-                n1j = self.edges[j,0]
-                n2j = self.edges[j,0]
+                n1j = self.edges[j,0].astype(int)
+                n2j = self.edges[j,0].astype(int)
                 if (n1j == n1 or n1j == n2 or n2j == n1 or n2j == n2):
                     if (n1j == n1 or n1j == n2):
                         n3 = n2j
@@ -113,7 +113,7 @@ class NuMesh2D():
                     vec = self.nodes[n3,0:2] - ndPt
                     dist = np.linalg.norm(vec)
                     mpVec = self.nodes[n3,:] - edgeMpt
-                    dp = self.edges[currentEdge,4:6] * mpVec.T
+                    dp = self.edges[currentEdge,4:6] @ mpVec.T
                     if (dist < srchRad and dp > 0):
                         elNum = self.findElement(np.array([n1,n2,n3]))
                         if (elNum == 0):
@@ -457,8 +457,8 @@ class NuMesh2D():
                             self.edges[i,4:6] = (1 / mag) * eNorm
             for i in range(numEdges):
                 if (self.edges[i,3] == 0):
-                    n1 = self.edges[i,0]
-                    n2 = self.edges[i,1]
+                    n1 = self.edges[i,0].astype(int)
+                    n2 = self.edges[i,1].astype(int)
                     midpt = 0.5 * (self.nodes[n1,0:2] + self.nodes[n2,1:3])
                     vec = self.nodes[n1,:3] - self.nodes[n2,:3]
                     eLen = np.linalg.norm(vec)
@@ -466,7 +466,7 @@ class NuMesh2D():
                     projLen = 0.8 * self.avgProjLen + 0.2 * 0.866025403784439 * eLen
                     srchRad = 0.5 * np.sqrt(projLen ** 2 + eLen ** 2)
                     ndPt = midpt + 0.5 * projLen * unitProj
-                    nodeFound,edAdd,self = self.adoptConnectedNode(i,ndPt,srchRad)
+                    nodeFound,edAdd = self.adoptConnectedNode(i,ndPt,srchRad)
                     edgesAdded = edgesAdded + edAdd
                     if (nodeFound == 0):
                         ndPt = midpt + projLen * unitProj
@@ -1336,7 +1336,18 @@ class NuMesh2D():
         return sortedNodes,angles
         
         
-    def uniformBoundarySpacing(self,maxIt): 
+    def uniformBoundarySpacing(self,maxIt):
+        """Object data modified: self.nodes
+
+        Parameters
+        ----------
+        maxIt : int
+
+        Returns
+        ---------
+        self
+        
+        """
         numNds = self.nodes.shape[0]
         numEdges = self.edges.shape[0]
         eqnFact = 10
@@ -1514,7 +1525,7 @@ class shellRegion:
                 xNodes = np.amax(self.edgeEls[[0,2]]) + 1
                 yNodes = np.amax(self.edgeEls[[1,3]]) + 1
                 boundaryNodes = np.stack([np.linspace(- 1,1,xNodes),- 1 * np.ones((xNodes))],axis=1)
-                boundaryEdges = np.concatenate([range(xNodes - 1),range(1,xNodes)]).reshape(1,-1)
+                boundaryEdges = np.stack([range(xNodes-1),range(1,xNodes)],axis=1)
                 mesh = NuMesh2D(boundaryNodes,boundaryEdges)
                 nodes,elements = mesh.createSweptMesh('in_direction',np.array([0,1]),2,(yNodes - 1),0,[])
                 ndElim = np.zeros((len(nodes),1)).astype(int)
@@ -1846,8 +1857,8 @@ class elementSet:
     Attributes
     ----------
     name : str
-    plygroups : list[Plygroup]??
-    elementsList : list
+    plygroups : list[Plygroup]
+    elementsList : array
     """
     def __init__(self, setName, setPlyGroups, setElList):
         self.name = setName
@@ -1914,6 +1925,10 @@ class spatialGridList2D():
         ----------
         val
         coord
+
+        Returns
+        -------
+        self
         
         """
         xRow = np.ceil((coord[0] - self.xMin) / self.xGSz).astype(int) - 1

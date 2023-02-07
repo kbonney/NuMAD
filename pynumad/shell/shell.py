@@ -99,9 +99,9 @@ def shellMeshGeneral(blade, forSolid, includeAdhesive):
     splineZi = splineZi.T
     ## Determine the first spanwise section that needs adhesive
     if (includeAdhesive == 1):
-        stPt = 1
+        stPt = 0
         frstXS = 0
-        while (frstXS == 0 and stPt < splineXi.shape[1-1]):
+        while (frstXS == 0 and stPt < splineXi.shape[0]):
 
             v1x = splineXi[stPt,6] - splineXi[stPt,4]
             v1y = splineYi[stPt,6] - splineYi[stPt,4]
@@ -171,24 +171,17 @@ def shellMeshGeneral(blade, forSolid, includeAdhesive):
             mag = np.linalg.norm(vec)
             nEl = np.concatenate([nEl,[np.ceil(mag / blade.mesh).astype(int)]])
             shell = shellRegion('quad16',shellKp,nEl)
-            # NOTE: kb translation paused here
             regNodes,regElements = shell.createShellMesh('quad','structured')
             numNds = nodes.shape[0]
             numEls = elements.shape[0]
             for k in range(regElements.shape[0]):
                 for m in range(regElements.shape[1]):
-                    if (regElements[k,m] < 1):
+                    if (regElements[k,m] < 0):
                         regElements[k,m] = - numNds
             regElements = regElements + numNds
-            if nodes.size ==0:
-                nodes = regNodes
-            else:
-                nodes = np.vstack([nodes,regNodes])
 
-            if elements.size ==0:
-                elements = regElements
-            else:
-                elements = np.vstack([elements,regElements])
+            nodes = np.vstack([nodes,regNodes]) if nodes.size else regNodes
+            elements = np.vstack([elements,regElements]) if elements.size else regElements
             elList = np.array(np.arange(numEls + 1,elements.shape[0]+1))
             newSet = elementSet(blade.stacks[j,i].name,blade.stacks[j,i].plygroups,elList)
             setCol = np.concatenate([setCol,[newSet]])
@@ -201,35 +194,39 @@ def shellMeshGeneral(blade, forSolid, includeAdhesive):
     
     ## Shift the appropriate splines if the mesh is for a solid model seed
     if (forSolid == 1):
-        caseIndex = np.array([[10,28,4],[13,25,4],[25,13,9],[28,10,9]])
+        caseIndex = np.array([
+            [9,27,3],
+            [12,24,3],
+            [24,12,8],
+            [27,9,8]])
         # 5,33,2; ...
         # 6,32,2; ...
         # 7,31,2; ...
         # 33,5,11; ...
         # 32,6,11; ...
         # 31,7,11];
-        for i in np.arange(1,caseIndex.shape[1-1]+1).reshape(-1):
-            spl = caseIndex(i,1)
-            tgtSp = caseIndex(i,2)
-            sec = caseIndex(i,3)
-            stPt = 1
-            for j in np.arange(1,rws - 1+1).reshape(-1):
+        for i in range(caseIndex.shape[0]):
+            spl = caseIndexc[i,0]
+            tgtSp = caseIndex[i,1]
+            sec = caseIndex[i,2]
+            stPt = 0
+            for j in range(rws-1):
                 totalThick = 0
-                for k in np.arange(1,3+1).reshape(-1):
-                    tpp = 0.001 * blade.stacks(sec,j).plygroups(k).thickness
-                    npls = blade.stacks(sec,j).plygroups(k).nPlies
+                for k in range(3):
+                    tpp = 0.001 * blade.stacks[sec,j].plygroups[k].thickness
+                    npls = blade.stacks[sec,j].plygroups[k].nPlies
                     totalThick = totalThick + tpp * npls
-                for k in np.arange(1,3+1).reshape(-1):
-                    vx = splineXi(stPt,tgtSp) - splineXi(stPt,spl)
-                    vy = splineYi(stPt,tgtSp) - splineYi(stPt,spl)
-                    vz = splineZi(stPt,tgtSp) - splineZi(stPt,spl)
+                for k in range(3):
+                    vx = splineXi[stPt,tgtSp] - splineXi[stPt,spl]
+                    vy = splineYi[stPt,tgtSp] - splineYi[stPt,spl]
+                    vz = splineZi[stPt,tgtSp] - splineZi[stPt,spl]
                     magInv = 1 / np.sqrt(vx * vx + vy * vy + vz * vz)
                     ux = magInv * vx
                     uy = magInv * vy
                     uz = magInv * vz
-                    splineXi[stPt,spl] = splineXi(stPt,spl) + totalThick * ux
-                    splineYi[stPt,spl] = splineYi(stPt,spl) + totalThick * uy
-                    splineZi[stPt,spl] = splineZi(stPt,spl) + totalThick * uz
+                    splineXi[stPt,spl] = splineXi[stPt,spl] + totalThick * ux
+                    splineYi[stPt,spl] = splineYi[stPt,spl] + totalThick * uy
+                    splineZi[stPt,spl] = splineZi[stPt,spl] + totalThick * uz
                     stPt = stPt + 1
     
     ## Shear web sections
@@ -482,7 +479,7 @@ def shellMeshGeneral(blade, forSolid, includeAdhesive):
         adhesEls = []
     
     return nodes,elements,outerShellElSets,shearWebElSets,adhesNds,adhesEls
-    
+  
     
 def generateShellModel(blade, feaCode, includeAdhesive, varargin): 
     # This method generates a shell FEA model in one of the supported FEA codes; w/ or w/o adhesieve
