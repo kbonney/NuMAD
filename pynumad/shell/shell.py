@@ -1,8 +1,11 @@
 import numpy as np
 import warnings
+from os import getcwd
+from os.path import join
 
 from pynumad.utils.interpolation import interpolator_wrap
 from pynumad.shell.shellClasses import shellRegion, elementSet, NuMesh3D, spatialGridList2D, spatialGridList3D
+from pynumad.io.ansys import writeANSYSshellModel
 
 
 def shellMeshGeneral(blade, forSolid, includeAdhesive):
@@ -487,23 +490,24 @@ def generateShellModel(blade, feaCode, includeAdhesive, varargin):
     if str(feaCode.lower()) == str('ansys'):
         global ansysPath
         # define ANSYS model settings (can be options in generateFEA)
-        config.BoundaryCondition = 'cantilevered'
-        config.elementType = '181'
-        config.MultipleLayerBehavior = 'multiply'
-        config.dbgen = 1
-        config.dbname = 'master'
+        config = {}
+        config["BoundaryCondition"] = 'cantilevered'
+        config["elementType"] = '181'
+        config["MultipleLayerBehavior"] = 'multiply'
+        config["dbgen"] = 1
+        config["dbname"] = 'master'
         # Generate a mesh using shell elements
         APDLname = 'buildAnsysShell.src'
         ansys_product = 'ANSYS'
-        blade.paths.job = pwd
-        filename = fullfile(blade.paths.job,APDLname)
+        blade.paths.job = getcwd()
+        filename = join(blade.paths.job,APDLname)
         if len(varargin)==0:
             forSolid = 0
             meshData.nodes,meshData.elements,meshData.outerShellElSets,meshData.shearWebElSets,meshData.adhesNds,meshData.adhesEls = blade.shellMeshGeneral(forSolid,includeAdhesive)
         else:
             meshData = varargin[0]
         writeANSYSshellModel(blade,filename,meshData,config,includeAdhesive)
-        if config.dbgen:
+        if config["dbgen"]:
             if len(ansysPath)==0:
                 errordlg('Path to ANSYS not specified. Aborting.','Operation Not Permitted')
                 return meshData

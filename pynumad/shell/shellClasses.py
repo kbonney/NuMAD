@@ -2202,7 +2202,7 @@ class spatialGridList3D():
                 self.label[i] = currentLabel[orig]
         
         return self
-        
+
 class edges():
     def __init__(self, coords):
         self.coords = coords
