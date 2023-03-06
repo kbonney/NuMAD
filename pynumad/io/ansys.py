@@ -285,7 +285,7 @@ def writeANSYSshellModel(blade, filename, meshData, config, includeAdhesive):
         #     fprintf(fid,'\ncsys,0');
         fid.write('\nallsel\n')
         nodes = meshData["nodes"]
-        elements = meshData["nodes"]
+        elements = meshData["elements"]
         nnodes = nodes.shape[0]
         nelements = elements.shape[0]
         fid.write('\n! DEFINE NODES =======================================\n')
@@ -315,27 +315,56 @@ def writeANSYSshellModel(blade, filename, meshData, config, includeAdhesive):
                 fid.write('e, %i, %i, %i, %i  !Element %i \n' % elem_data)
             else:
                 dup = np.array([[dup],[iElement]])
-        fid.write('\n! ASSIGN SECTIONS TO OUTER SHELL ELEMENTS =======================================\n')
-        for iStation in range(nStations):
-            for iPerimeter in range(nStationLayups):
-                secID = int(str(iStation) + str(iPerimeter))
-                csID = 1000 + iStation
-                elementList = meshData["outerShellElSets"][iPerimeter,iStation].elementList
-                for iEl in range(len(elementList)):
-                    fid.write('   emodif,%i,secnum,%i\n' % (elementList(iEl),secID))
-                    fid.write('   emodif,%i,esys,%i\n' % (elementList(iEl),csID))
-        fid.write('\n! ASSIGN SECTIONS TO SHEARWEB(S) SHELL ELEMENTS =======================================\n')
-        nWebs = len(blade.swstacks)
-        for iWeb in range(nWebs):
-            __,nStations = blade.swstacks[iWeb].shape
-            for iStation in range(nStations):
-                currentStack = blade.swstacks[iWeb][iStation]
-                if not len(currentStack.plygroups)==0 :
-                    secID = webSectionIDstart + iStation + (iWeb - 1) * 10 ** orderOfMagnitude
-                    csID = 1000 + iStation
-                    elementList = meshData["shearWebElSets"][iWeb][iStation].elementList
-                    for iEl in range(len(elementList)):
-                        fid.write('   emodif,%i,secnum,%i\n' % (elementList[iEl],secID))
+
+        # Separate elements into outer shell and shear web
+        # outershell_els = []
+        # shearweb_els = []
+        elements = meshData['sets']['element']
+        sections = meshData['sections']
+        # for i in range(len(elements)):
+        #     if "SW" in elements[i]["name"]:
+        #         shearweb_els.append((elements[i], sections[i]))
+        #     else:
+        #         outershell_els.append((elements[i], sections[i]))
+        fid.write('\n! ASSIGN SECTIONS TO ELEMENTS =======================================\n')
+        secID = 1
+        for el in elements:
+            # secID = int(str(iStation) + str(iPerimeter)) #not sure how to get this
+            # secID = 0
+            # csID = 1000 + iStation #not sure how to get this
+            # csID = 1
+            # elementList = meshData["outerShellElSets"][iPerimeter,iStation].elementList
+            elementList = el['labels']
+            for iEl in range(len(elementList)):
+                fid.write('   emodif,%i,secnum,%i\n' % (elementList[iEl],secID))
+                # fid.write('   emodif,%i,esys,%i\n' % (elementList[iEl],csID))
+            secID+=1
+        # secID = 1
+        # fid.write('\n! ASSIGN SECTIONS TO SHEARWEB(S) SHELL ELEMENTS =======================================\n')
+        # for el, section in shearweb_els:
+        #     if not len(section['layup'])==0:
+        #         # secID = webSectionIDstart + iStation + (iWeb - 1) * 10 ** orderOfMagnitude #not how to get this
+        #         secID = 0
+        #         # csID = 1000 + iStation # not sure how to get this
+        #         elementList = el['labels']
+        #         for iEl in range(len(elementList)):
+        #             fid.write('   emodif,%i,secnum,%i\n' % (elementList[iEl],secID))
+        #         secID+=1
+
+        
+        # #old version
+        # nWebs = len(blade.swstacks)
+        # for iWeb in range(nWebs):
+        #     __,nStations = blade.swstacks[iWeb].shape
+        #     for iStation in range(nStations):
+        #         currentStack = blade.swstacks[iWeb][iStation]
+        #         if not len(currentStack.plygroups)==0 :
+        #             secID = webSectionIDstart + iStation + (iWeb - 1) * 10 ** orderOfMagnitude
+        #             csID = 1000 + iStation
+        #             elementList = meshData["shearWebElSets"][iWeb][iStation].elementList
+        #             for iEl in range(len(elementList)):
+        #                 fid.write('   emodif,%i,secnum,%i\n' % (elementList[iEl],secID))
+        
                         #fprintf(fid,'   emodif,#i,esys,#i\n',elementList(iEl),csID);
         #     #tcl: reverse area normals if clockwise blade
         #     #tcl:    shear web areas are reversed as well - not necessary, just easier
@@ -371,10 +400,10 @@ def writeANSYSshellModel(blade, filename, meshData, config, includeAdhesive):
         #fprintf(fid,'\n   cmsel,s,tip_station_lines');
         fid.write('\n   nsll,s,1')
         fid.write('\n   nsel,a,node,,z_master_node_number')
-        if np.array(['91','99','281','181']) == config["elementType"]:
+        if config["elementType"] in ['91','99','281','181']:
             fid.write('\n   cerig,z_master_node_number,all,RXYZ\n')
         else:
-            if '191' == config["elementType"]:
+            if config["elementType"] == '191':
                 fid.write('\n   cerig,z_master_node_number,all,uxyz\n')
         if config["BoundaryCondition"]=='cantilevered':
             #jcb: FIXME - nsel could break with swept/bent blades
@@ -396,9 +425,9 @@ def writeANSYSshellModel(blade, filename, meshData, config, includeAdhesive):
         fid.write('\nfinish')
         fid.write('\n/post1\n')
         fid.write('\nfctyp,dele,all   ! remove all material failure-criteria postprocessing\n')
-        for kfc in range(len(config["FailureCriteria"])):
-            if config["FailureCriteria"][kfc,2]:
-                fid.write('fctyp,add,%s\n' % (config["FailureCriteria"][kfc,1]))
+        for kfc in config["FailureCriteria"].keys():
+            if config["FailureCriteria"][kfc]:
+                fid.write('fctyp,add,%s\n' % (config["FailureCriteria"][kfc]))
         fid.write('\nfinish\n')
         ### Material Properties ###
         fid.write('mpwrite,Materials,txt,,\n')
