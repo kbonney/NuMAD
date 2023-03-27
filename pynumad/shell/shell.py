@@ -8,7 +8,7 @@ from pynumad.utils.interpolation import interpolator_wrap
 from pynumad.shell.SurfaceClass import Surface
 from pynumad.shell.Mesh3DClass import Mesh3D
 from pynumad.shell.ShellRegionClass import ShellRegion
-from pynumad.io.ansys import writeANSYSshellModel
+from pynumad.analysis.ansys.ansys import writeANSYSshellModel
 
 
 def shellMeshGeneral(blade, forSolid, includeAdhesive):
