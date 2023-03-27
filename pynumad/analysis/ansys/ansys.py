@@ -366,6 +366,27 @@ def writeANSYSshellModel(blade, filename, meshData, config, includeAdhesive):
         #             for iEl in range(len(elementList)):
         #                 fid.write('   emodif,%i,secnum,%i\n' % (elementList[iEl],secID))
         
+#        fid.write('\n! ASSIGN SECTIONS TO OUTER SHELL ELEMENTS =======================================\n')
+#        for iStation in range(nStations):
+#            for iPerimeter in range(nStationLayups):
+#                secID = int(str(iStation) + str(iPerimeter))
+#                csID = 1000 + iStation
+#                elementList = meshData["outerShellElSets"][iPerimeter,iStation].elementList
+#                for iEl in range(len(elementList)):
+#                    fid.write('   emodif,%i,secnum,%i\n' % (elementList(iEl),secID))
+#                    fid.write('   emodif,%i,esys,%i\n' % (elementList(iEl),csID))
+#        fid.write('\n! ASSIGN SECTIONS TO SHEARWEB(S) SHELL ELEMENTS =======================================\n')
+#        nWebs = len(blade.swstacks)
+#        for iWeb in range(nWebs):
+#            __,nStations = blade.swstacks[iWeb].shape
+#            for iStation in range(nStations):
+#                currentStack = blade.swstacks[iWeb][iStation]
+#                if not len(currentStack.plygroups)==0 :
+#                    secID = webSectionIDstart + iStation + (iWeb - 1) * 10 ** orderOfMagnitude
+#                    csID = 1000 + iStation
+#                    elementList = meshData["shearWebElSets"][iWeb][iStation].elementList
+#                    for iEl in range(len(elementList)):
+#                        fid.write('   emodif,%i,secnum,%i\n' % (elementList[iEl],secID))
                         #fprintf(fid,'   emodif,#i,esys,#i\n',elementList(iEl),csID);
         #     #tcl: reverse area normals if clockwise blade
         #     #tcl:    shear web areas are reversed as well - not necessary, just easier
