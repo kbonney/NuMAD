@@ -8,6 +8,7 @@ from pynumad.utils.interpolation import interpolator_wrap
 from pynumad.shell.SurfaceClass import Surface
 from pynumad.shell.Mesh3DClass import Mesh3D
 from pynumad.shell.ShellRegionClass import ShellRegion
+from pynumad.shell.shellClasses import shellRegion, elementSet, NuMesh3D, spatialGridList2D, spatialGridList3D
 from pynumad.io.ansys import writeANSYSshellModel
 
 
@@ -16,6 +17,7 @@ def shellMeshGeneral(blade, forSolid, includeAdhesive):
     This method generates a finite element shell mesh for the blade, based on what is
     stored in blade.geometry, blade.keypoints, and blade.profiles.  Output is given as
     a python dictionary.
+
 
     Parameters
     -----------
@@ -185,6 +187,7 @@ def shellMeshGeneral(blade, forSolid, includeAdhesive):
             newSec['elementSet'] = blade.stacks[j,i].name
             secList.append(newSec)
             stSp = stSp + 3
+
         stPt = stPt + 3
     
     ## Shift the appropriate splines if the mesh is for a solid model seed
@@ -268,6 +271,7 @@ def shellMeshGeneral(blade, forSolid, includeAdhesive):
             newSec['layup'] = layup
             newSec['elementSet'] = blade.swstacks[0][i].name
             secList.append(newSec)
+
         if blade.swstacks[1][i].plygroups:
             shellKp = np.zeros((16,3))
             shellKp[0,:] = np.array([splineXi[stPt,27],splineYi[stPt,27],splineZi[stPt,27]])
@@ -406,6 +410,7 @@ def generateShellModel(blade, feaCode, includeAdhesive, varargin):
         else:
             meshData = varargin[0]
         writeANSYSshellModel(blade,filename,meshData,config,includeAdhesive)  ## Edit this function for the new structure of meshData - E Anderson
+
         if config["dbgen"]:
             if len(ansysPath)==0:
                 errordlg('Path to ANSYS not specified. Aborting.','Operation Not Permitted')
@@ -476,6 +481,7 @@ def getSolidMesh(blade, layerNumEls=[]):
     for i in range(numNds):
         mag = np.linalg.norm(nodeNorms[i])
         nodeNorms[i] = (1.0/mag)*nodeNorms[i]
+
     
     ## Extrude shell mesh into solid mesh
     if (len(layerNumEls)==0):
@@ -531,4 +537,5 @@ def getSolidMesh(blade, layerNumEls=[]):
     solidMesh['adhesiveElSet'] = shellMesh['adhesiveElSet']
     
     return solidMesh
+
 
