@@ -9,7 +9,27 @@ AUTHOR = 'NuMAD Dev Team'
 MAINTAINER_EMAIL = 'klbonne@sandia.gov'
 LICENSE = 'Revised BSD'
 URL = 'https://github.com/sandialabs/pynumad'
-DEPENDENCIES = ['numpy', 'scipy', 'pandas', 'matplotlib', 'pyyaml', 'plotly']
+DEPENDENCIES = [
+    'numpy', 
+    'scipy', 
+    'pandas', 
+    'matplotlib', 
+    'pyyaml', 
+    'plotly',
+    ]
+
+EXTRAS = {
+    'tests': [
+        'coverage',
+        'pytest',
+    ],
+    'docs': [
+        'Sphinx>2',
+        'sphinx-copybutton',
+        'sphinx_rtd_theme>0.5',
+        'sphinxcontrib-napoleon',
+    ]
+}
 
 # use README file as the long description
 file_dir = os.path.abspath(os.path.dirname(__file__))
@@ -38,5 +58,6 @@ setup(name=DISTNAME,
       url=URL,
       zip_safe=False,
       install_requires=DEPENDENCIES,
+      extras_require=EXTRAS
       scripts=[],
       include_package_data=True)
