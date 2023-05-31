@@ -1,6 +1,6 @@
 .. _developer:
 
-Developing pynumad
+Developing PyNuMAD
 =====================
 
 Installation

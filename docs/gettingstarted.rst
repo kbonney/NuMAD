@@ -51,7 +51,7 @@ To populate the blade with a yaml or excel file you can run::
     blade.load_yaml("path/to/yaml")
     blade.load_excel("path/to/excel")
 
-or initialize the blade with the path::
+or initialize the blade with the path, which will automatically run the corresponding load method::
 
     blade = pynumad.Blade("path/to/yaml")
     blade = pynumad.Blade("path/to/excel")

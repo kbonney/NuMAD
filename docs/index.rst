@@ -13,14 +13,11 @@ Numerical Manufacturing And Design (NuMAD) Tool for Wind Turbine Blades
    :hidden:
    
    Home <self>
-   API documentation <apidoc/pynumad>
    introduction/index.rst
-   user/index.rst
+   gettingstarted.rst
+   userguide/index.rst
+   API documentation <apidoc/pynumad>
    developer.rst
-   gettingstarted
-
-
-
 
 
 The structural design and optimization of wind turbine blades is a
@@ -28,18 +25,22 @@ complex task. In many cases it is difficult to find the optimal design
 of a turbine blade by hand, or by trial and error, and the software
 tools used for such designs are most effective when integrated into
 automated optimization and analysis algorithms. A new version of the
-software tool `NuMAD (Numerical Manufacturing And Design) <https://github.com/sandialabs/NuMAD>`_ for the design
+software tool  for the design
 and modeling of wind turbine blades is developed and described. 
 
-Newly released :ref:`NuMADv3` is structured to be run from a scripting environment
-and easily called by optimization processes. 
-The previous release, :ref:`NuMADv2`, relied on the use of a graphical
-user interface. Modifications were made to the MATLAB-based source code
-to decouple the internal functions from the graphical user interface,
-and additional functionality was added for convenience in performing
-high-fidelity finite element analysis. NuMAD 3.0 has been successfully
-implemented for optimization of large, flexible rotor blades, and is
-suitable to be made available for public use.
+PyNuMAD is the Python release of `NuMAD (Numerical Manufacturing And Design) <https://github.com/sandialabs/NuMAD>`_,
+a matlab-based tool designed to facilitate the design process for wind turbine blades. 
+PyNuMAD is an object-oriented package structured to be run in a scripting environment.
+Releasing a version of NuMAD in Python is a part of
+an effort by the development team to bring NuMAD into a FOSS environment by reducing license requirements. Another part of this effort
+is the development of an in-house meshing tool. Previously, the creation of a blade mesh was done in an external tool like ANSYS, but now
+pyNuMAD implements this functionality.
+Major features include:
+
+   - I/O for common blade ontologies (WindIO yaml, Excel).
+   - Management of blade geometry and materials.
+   - Built-in shell and brick mesher.
+   - Integration with external codes
 
 
 .. _developers:
@@ -73,7 +74,10 @@ Funding
 
 Development and maintenance of the NuMAD code is funded by the U.S. Department of Energy’s Wind Energy Technologies Office.
 
-Sandia National Laboratories is a multi-mission laboratory managed and operated by National Technology and Engineering Solutions of Sandia, LLC., a wholly owned subsidiary of Honeywell International, Inc., for the U.S. Department of Energy’s National Nuclear Security Administration under contract DE-NA0003525.
+Sandia National Laboratories is a multi-mission laboratory managed and operated by 
+National Technology and Engineering Solutions of Sandia, LLC., a wholly owned subsidiary 
+of Honeywell International, Inc., for the U.S. Department of Energy’s National Nuclear 
+Security Administration under contract DE-NA0003525.
 
 Indices and tables
 ==================
