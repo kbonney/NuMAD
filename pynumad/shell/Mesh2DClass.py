@@ -1,6 +1,6 @@
 import numpy as np
 from pynumad.shell.SpatialGridList2DClass import *
-import plotly.graph_objects as go
+
 
 class Mesh2D():
 
@@ -927,45 +927,3 @@ class Mesh2D():
         
         return meshOut
         
-    def plot2DMesh(self):
-        xLst = self.nodes[0:self.numNodes,0]
-        yLst = self.nodes[0:self.numNodes,1]
-        zLst = np.zeros(self.numNodes)
-        value = list()
-        v1 = list()
-        v2 = list()
-        v3 = list()
-        for i in range(0,self.numTriEls):
-            v1.append(self.triElements[i,0])
-            v2.append(self.triElements[i,1])
-            v3.append(self.triElements[i,2])
-            value.append(np.sin(i))
-        for i in range(0,self.numQuadEls):
-            v1.append(self.quadElements[i,0])
-            v2.append(self.quadElements[i,1])
-            v3.append(self.quadElements[i,2])
-            value.append(np.sin(i))
-            v1.append(self.quadElements[i,0])
-            v2.append(self.quadElements[i,2])
-            v3.append(self.quadElements[i,3])
-            value.append(np.sin(i))
-        fig = go.Figure(data=[
-            go.Mesh3d(
-                x=xLst,
-                y=yLst,
-                z=zLst,
-                colorbar_title = '',
-                colorscale=[[0.0, 'blue'],
-                            [0.5, 'yellow'],
-                            [1.0, 'red']],
-                intensity=value,
-                intensitymode='cell',
-                i=v1,
-                j=v2,
-                k=v3,
-                name='',
-                showscale=True
-            )
-        ])
-
-        fig.show()
