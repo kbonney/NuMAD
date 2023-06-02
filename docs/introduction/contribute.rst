@@ -1,10 +1,10 @@
 .. _intro-contribute:
 
 
-Contributing to NuMAD
+Contributing to pyNuMAD
 ========================================================
 
-Thank you for considering contributing to NuMAD. 
+Thank you for considering contributing to pyNuMAD. 
 We welcome contributions from the community in form of bug fixes, feature
 enhancements, documentation updates, etc. All contributions are processed
 through pull-requests on GitHub. 
@@ -12,9 +12,9 @@ Please follow these guidelines for contributing.
 
 Reporting issues and bugs
 ----------------------------------------------
-This section guides you through the process of submitting an issue for NuMAD.
+This section guides you through the process of submitting an issue for pyNuMAD.
 To report issues or bugs please `create a new
-issue <https://github.com/sandialabs/NuMAD/issues/new>`_ on GitHub.
+issue <https://github.com/sandialabs/pyNuMAD/issues/new>`_ on GitHub.
 	
 Following these guidelines will help maintainers understand your issue,
 reproduce the behavior, and develop a fix in an expedient fashion. Before
@@ -43,7 +43,7 @@ Contributions can take the form of bug fixes, feature enhancements,
 documentation updates. All updates to the repository are managed via `pull
 requests <https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/proposing-changes-to-your-work-with-pull-requests>`_.
 One of the easiest ways to get started is by looking at `open
-issues <https://github.com/sandialabs/NuMAD/issues>`_ and contributing fixes,
+issues <https://github.com/sandialabs/pyNuMAD/issues>`_ and contributing fixes,
 enhancements that address those issues. If your code contribution involves large
 changes or additions to the codebase, we recommend opening an issue first and
 discussing your proposed changes with the core development team to ensure that
@@ -62,7 +62,7 @@ Guidelines for preparing and submitting pull-requests
   context to understand your pull request
   
 - Make sure that your pull-request merges cleanly with the `main` branch of
-  NuMAD. When working on a feature, always create your feature branch off of
+  pyNuMAD. When working on a feature, always create your feature branch off of
   the latest `main` commit
   
 - Ensure that the code compiles without warnings, (leave for later? the unit tests and regression
@@ -74,7 +74,7 @@ Guidelines for preparing and submitting pull-requests
   validation, as well as unit tests and regression tests
   
   
-Once a pull-request is submitted you will iterate with NuMAD maintainers
+Once a pull-request is submitted you will iterate with pyNuMAD maintainers
 until your changes are in an acceptable state and can be merged in. You can push
 addditional commits to the branch used to create the pull-request to reflect the
 feedback from maintainers and users of the code.
