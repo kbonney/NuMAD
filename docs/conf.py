@@ -23,7 +23,8 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
     # 'sphinx.ext.viewcode', # commenting out for now b/c bad render width
-    'sphinx.ext.napoleon'
+    'sphinx.ext.napoleon',
+    'sphinxcontrib.bibtex'
 ]
 napoleon_use_rtype = False
 viewcode_import = True
@@ -32,6 +33,7 @@ numpydoc_show_inherited_class_members = False
 numpydoc_class_members_toctree = False
 autodoc_member_order = 'bysource'
 autoclass_content = 'both'
+bibtex_bibfiles = ['refs/publications.bib','refs/conclusion.bib']
 
 templates_path = ['_templates']
 
